@@ -14,6 +14,7 @@ import net.runelite.api.events.ItemSpawned;
 import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.itemdropsound.ItemDropSoundConfig.CONFIG_GROUP;
+
 @Slf4j
 @PluginDescriptor(
 	name = "Item Drop Sound"
@@ -43,17 +46,44 @@ public class ItemDropSoundPlugin extends Plugin
 	
 	@Inject
 	private ItemDropSoundConfig config;
-	
-	
+
+	ArrayList<Integer> itemIds = null;
 	
 	@Override
 	protected void startUp() throws Exception
 	{
 		initializeSoundFiles();
-		
-		log.info("Item Dropper started!");
+		itemIds = getItemIds();
+		log.debug("Item Dropper started!");
 	}
-	
+
+	@Override
+	protected void shutDown() throws Exception
+	{
+		log.debug("Item Dropper stopped!");
+		itemIds.clear();
+		itemIds = null;
+	}
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged e)
+	{
+		if (e.getGroup().equals(CONFIG_GROUP))
+		{
+			itemIds = getItemIds();
+		}
+	}
+
+	private ArrayList<Integer> getItemIds(){
+		try{
+			return Arrays.stream(config.itemIds().split(";"))
+					.map(Integer::valueOf)
+					.collect(Collectors.toCollection(ArrayList::new));
+		} catch (NumberFormatException ex){
+			log.error("Invalid item id configuration");
+			return new ArrayList<>();
+		}
+	}
 	private void initializeSoundFiles() {
 		if (!SOUND_FOLDER.exists()) {
 			if (!SOUND_FOLDER.mkdirs()) {
@@ -78,21 +108,6 @@ public class ItemDropSoundPlugin extends Plugin
 		}
 		catch (Exception e){
 			log.error(e.getLocalizedMessage());
-		}
-	}
-	
-	@Override
-	protected void shutDown() throws Exception
-	{
-		log.info("Item Dropper stopped!");
-	}
-	
-	private List<Integer> getItemIds(){
-		try{
-			return Arrays.stream(config.itemIds().split(";")).map(Integer::parseInt).collect(Collectors.toList());
-		} catch (NumberFormatException ex){
-			log.error("Invalid item id configuration");
-			return new ArrayList<>();
 		}
 	}
 

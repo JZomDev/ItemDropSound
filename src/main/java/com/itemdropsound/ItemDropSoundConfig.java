@@ -5,9 +5,12 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("ItemDropSoundConfig")
+import static com.itemdropsound.ItemDropSoundConfig.CONFIG_GROUP;
+
+@ConfigGroup(CONFIG_GROUP)
 public interface ItemDropSoundConfig extends Config
 {
+	public static String CONFIG_GROUP = "ItemDropSoundConfig";
 	@ConfigItem(
 			keyName = "item_ids",
 			name = "Item Ids",
