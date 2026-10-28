@@ -114,7 +114,11 @@ public class ItemDropSoundPlugin extends Plugin
 	@Subscribe
 	public void onItemSpawned(ItemSpawned itemSpawned)
 	{
-		List<Integer> itemIds = getItemIds();
+		if (itemIds == null)
+		{
+			return;
+		}
+
 		Clip clip = null;
 		
 		TileItem item = itemSpawned.getItem();
