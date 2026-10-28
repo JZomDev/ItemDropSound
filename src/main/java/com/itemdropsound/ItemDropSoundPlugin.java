@@ -25,10 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.itemdropsound.ItemDropSoundConfig.CONFIG_GROUP;
 
@@ -75,14 +72,19 @@ public class ItemDropSoundPlugin extends Plugin
 	}
 
 	private ArrayList<Integer> getItemIds(){
-		try{
-			return Arrays.stream(config.itemIds().split(";"))
-					.map(Integer::valueOf)
-					.collect(Collectors.toCollection(ArrayList::new));
-		} catch (NumberFormatException ex){
-			log.error("Invalid item id configuration");
-			return new ArrayList<>();
+		ArrayList<Integer> ids = new ArrayList<>();
+		for (String value : config.itemIds().split(";"))
+		{
+			try
+			{
+				ids.add(Integer.valueOf(value.trim()));
+			}
+			catch (NumberFormatException ex)
+			{
+				log.warn("Invalid item id in configuration: '{}'", value);
+			}
 		}
+		return ids;
 	}
 	private void initializeSoundFiles() {
 		if (!SOUND_FOLDER.exists()) {
